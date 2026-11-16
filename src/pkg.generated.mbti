@@ -1,0 +1,235 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "1781988/moonlite/src"
+
+import {
+  "moonbitlang/core/buffer",
+}
+
+// Values
+pub const BD_BLOCK_MAX_SIZE_MASK : Int32 = 0x70
+
+pub const BD_BLOCK_MAX_SIZE_SHIFT : Int32 = 4
+
+pub const BD_RESERVED_MASK : Int32 = 0x8F
+
+pub const BLOCK_LENGTH_MASK : UInt32 = 0x7FFFFFFF
+
+pub const BLOCK_UNCOMPRESSED_FLAG : UInt32 = 0x80000000
+
+pub const END_MARK : UInt32 = 0
+
+pub const FLG_BLOCK_CHECKSUM : Int32 = 0x10
+
+pub const FLG_BLOCK_INDEPENDENCE : Int32 = 0x20
+
+pub const FLG_CONTENT_CHECKSUM : Int32 = 0x04
+
+pub const FLG_CONTENT_SIZE : Int32 = 0x08
+
+pub const FLG_DICT_ID : Int32 = 0x01
+
+pub const FLG_RESERVED : Int32 = 0x02
+
+pub const FLG_VERSION_01 : Int32 = 0x40
+
+pub const FLG_VERSION_MASK : Int32 = 0xC0
+
+pub const HASHLOG : Int32 = 14
+
+pub const HASH_SIZE : Int32 = 16384
+
+pub const LASTLITERALS : Int32 = 5
+
+pub const MAGIC : UInt32 = 0x184D2204
+
+pub const MAX_LENGTH_ACC : Int32 = 0x7FFFFFFF
+
+pub const MAX_OFFSET : Int32 = 65535
+
+pub const MFLIMIT : Int32 = 12
+
+pub const MINMATCH : Int32 = 4
+
+pub const PRIME32_1 : UInt32 = 2654435761
+
+pub const PRIME32_2 : UInt32 = 2246822519
+
+pub const PRIME32_3 : UInt32 = 3266489917
+
+pub const PRIME32_4 : UInt32 = 668265263
+
+pub const PRIME32_5 : UInt32 = 374761393
+
+pub const SKIP_BASE : UInt32 = 0x184D2A50
+
+pub const SKIP_MASK : UInt32 = 0xFFFFFFF0
+
+pub fn block_table() -> Array[Int32]
+
+pub fn compress_block(BytesView) -> Bytes
+
+pub fn decode_frame(BytesView) -> Result[Frame, Lz4Error]
+
+pub fn decompress_block(BytesView, Int32) -> Result[Bytes, Lz4Error]
+
+pub fn encode_frame(BytesView, options? : FrameOptions) -> Result[Bytes, Lz4Error]
+
+pub fn frame_info(BytesView) -> Result[FrameInfo, Lz4Error]
+
+pub fn frame_options(size? : BlockSize, declared_size? : Int32, content_checksum? : Bool, dict_id? : UInt32?) -> FrameOptions
+
+pub fn hex_decode(String) -> Result[Bytes, Lz4Error]
+
+pub fn hex_encode(BytesView) -> String
+
+pub fn version() -> String
+
+pub fn xxhash32(BytesView, seed? : UInt32) -> UInt32
+
+// Errors
+pub suberror Lz4Error {
+  TruncatedInput(Int32)
+  InvalidMagic(Int32)
+  UnsupportedVersion(Int32)
+  ReservedBitsSet(Int32)
+  InvalidHeaderChecksum(Int32)
+  InvalidBlockSize(Int32)
+  InvalidBlockSizeField(Int32)
+  InvalidOffset(Int32)
+  InvalidMatchLength(Int32)
+  InvalidLiteralsLength(Int32)
+  InvalidLastLiterals(Int32)
+  LastMatchTooClose(Int32)
+  OutputLimitExceeded(Int32)
+  ContentSizeMismatch(Int32)
+  BlockChecksumMismatch(Int32)
+  ContentChecksumMismatch(Int32)
+  MissingEndMark(Int32)
+  TrailingData(Int32)
+  UnsupportedFeature(String, Int32)
+  InvalidArgument(String, Int32)
+}
+pub fn Lz4Error::diagnose(Self) -> String
+pub fn Lz4Error::offset(Self) -> Int32
+pub fn Lz4Error::output(Self, &Logger) -> Unit
+pub fn Lz4Error::to_string(Self) -> String
+pub fn Lz4Error::variants() -> Array[Self]
+pub impl Show for Lz4Error
+
+// Types and methods
+pub enum BlockSize {
+  KB64
+  KB256
+  MB1
+  MB4
+}
+pub fn BlockSize::code(Self) -> Int32
+pub fn BlockSize::from_code(Int32) -> Result[Self, Lz4Error]
+pub fn BlockSize::max_bytes(Self) -> Int32
+
+pub enum DecodeState {
+  NeedMagic
+  NeedHeader(Int32)
+  NeedBlockSize
+  NeedBlockData(Int32, Bool, Bool)
+  NeedSkippableSize
+  NeedSkippableData(Int32)
+  NeedContentChecksum
+  Finished
+  Failed
+}
+
+pub struct Frame {
+  content : Bytes
+  info : FrameInfo
+}
+pub fn Frame::content(Self) -> Bytes
+pub fn Frame::info(Self) -> FrameInfo
+
+pub struct FrameDecoder {
+  mut state : DecodeState
+  mut pending : Array[Byte]
+  mut cursor : Int32
+  mut stream_offset : Int32
+  mut header : FrameHeader?
+  mut info : FrameInfo
+  out : @buffer.Buffer
+  xxh : XxHash32
+  mut history : Array[Byte]
+  mut emitted : Array[Bytes]
+  mut total_out : Int32
+  mut finished : Bool
+}
+pub fn FrameDecoder::decode(BytesView) -> Result[Frame, Lz4Error]
+pub fn FrameDecoder::finish(Self) -> Result[Bytes, Lz4Error]
+pub fn FrameDecoder::is_finished(Self) -> Bool
+pub fn FrameDecoder::new() -> Self
+pub fn FrameDecoder::push(Self, BytesView) -> Result[Array[Bytes], Lz4Error]
+
+pub struct FrameEncoder {
+  options : FrameOptions
+  mut header_written : Bool
+  mut input : Array[Byte]
+  out : @buffer.Buffer
+  xxh : XxHash32
+  mut total_in : Int32
+  mut block_count : Int32
+  mut finished : Bool
+}
+pub fn FrameEncoder::encode(BytesView, options? : FrameOptions) -> Result[Bytes, Lz4Error]
+pub fn FrameEncoder::finish(Self) -> Result[Bytes, Lz4Error]
+pub fn FrameEncoder::new(options? : FrameOptions) -> Self
+pub fn FrameEncoder::write(Self, BytesView) -> Result[Bytes, Lz4Error]
+
+pub struct FrameHeader {
+  flg : Byte
+  bd : Byte
+  content_size : UInt64?
+  dict_id : UInt32?
+  block_size : BlockSize
+  block_independence : Bool
+  block_checksum : Bool
+  content_checksum : Bool
+  header_length : Int32
+}
+
+pub(all) struct FrameInfo {
+  version : Int32
+  block_independence : Bool
+  block_checksum : Bool
+  content_checksum : Bool
+  has_content_size : Bool
+  content_size : UInt64?
+  dict_id : UInt32?
+  block_size : BlockSize
+  block_max_size : Int32
+  header_length : Int32
+  frame_length : Int32
+  block_count : Int32
+  skippable_count : Int32
+}
+
+pub struct FrameOptions {
+  block_size : BlockSize
+  content_size : UInt64?
+  content_checksum : Bool
+  dict_id : UInt32?
+}
+pub fn FrameOptions::default() -> Self
+
+pub struct XxHash32 {
+  mut v1 : UInt32
+  mut v2 : UInt32
+  mut v3 : UInt32
+  mut v4 : UInt32
+  mut total_len : UInt64
+  mut mem : Array[Byte]
+  seed : UInt32
+}
+pub fn XxHash32::digest(Self) -> UInt32
+pub fn XxHash32::new(seed? : UInt32) -> Self
+pub fn XxHash32::update(Self, BytesView) -> Unit
+
+// Type aliases
+
+// Traits
