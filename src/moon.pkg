@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/core/builtin",
+  "moonbitlang/core/buffer",
+}
+
+import {
+  "moonbitlang/core/test",
+} for "wbtest"
+
+warnings = "-result_error_return"
