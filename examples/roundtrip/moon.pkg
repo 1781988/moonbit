@@ -1,0 +1,5 @@
+import {
+  "1781988/moonlite/src" @moonlite,
+}
+
+pkgtype(kind: "executable")
