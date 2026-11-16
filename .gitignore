@@ -1,0 +1,23 @@
+# Build artifacts
+_build/
+target/
+*.mi
+*.mbti.bak
+
+# Compiled outputs
+*.wasm
+*.exe
+*.obj
+*.lib
+*.exp
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local scratch
+*.tmp
+*.log
+tmp/
