@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit toolchain
+        shell: bash
+        run: |
+          set -e
+          if ! curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash; then
+            curl -fsSL https://cli.moonbitlang.cn/install/unix.sh | bash
+          fi
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Update package index
+        run: moon update
+
+      - name: Format check
+        run: moon fmt --check
+
+      - name: Generate package interfaces
+        run: moon info
+
+      - name: Type check
+        run: moon check --target all --deny-warn
+
+      - name: Build
+        run: moon build --target all
+
+      - name: Test
+        run: moon test --target all
+
+      - name: Run CLI
+        run: moon run cmd/main
+
+      - name: Run example
+        run: moon run examples/roundtrip
