@@ -122,3 +122,32 @@ here. See [THIRD_PARTY.md](THIRD_PARTY.md) and [LICENSE](LICENSE).
 `decode_frame` handles one standard frame per call, with optional leading
 skippable frames; bytes after the end mark are rejected. Linked-block and
 block-checksum frames are decoded but not produced.
+
+## Releasing
+
+The module is published from the repository root. Before publishing, run the
+full local gate and check what the package would contain:
+
+```bash
+moon fmt --check
+moon info
+moon check --target all --deny-warn
+moon build --target all
+moon test --target all
+moon package --list
+```
+
+`moon package --list` verifies the manifest, runs a package-wide check and
+prints the file list included in the release archive. Then authenticate and
+publish:
+
+```bash
+moon login
+moon publish
+```
+
+`moon publish --dry-run` validates the publication without creating a
+release, but still requires an authenticated registry account. The `private`
+field in `moon.mod` is `false`, so the module is publicly visible after
+publication. The upstream LZ4 library is BSD-2-Clause and the corresponding
+notice is included in `LICENSE` and `THIRD_PARTY.md`.
