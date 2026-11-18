@@ -1,7 +1,7 @@
 ///|
 /// Block maximum size, restricted to the four values allowed by the LZ4
 /// frame format (BD codes 4..7).
-pub enum BlockSize {
+pub(all) enum BlockSize {
   KB64
   KB256
   MB1

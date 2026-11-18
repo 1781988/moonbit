@@ -117,7 +117,7 @@ pub fn Lz4Error::variants() -> Array[Self]
 pub impl Show for Lz4Error
 
 // Types and methods
-pub enum BlockSize {
+pub(all) enum BlockSize {
   KB64
   KB256
   MB1
